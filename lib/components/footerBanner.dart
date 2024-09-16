@@ -18,7 +18,7 @@ class _FooterBannerState extends State<FooterBanner> {
       children: [
         Container(
             color: mySecondColor,
-            height: 120,
+            height: 118,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
