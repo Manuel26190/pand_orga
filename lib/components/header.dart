@@ -10,7 +10,7 @@ class Header extends StatefulWidget {
 }
 
 class _HeaderState extends State<Header> {
-  static const Color myColor = Color.fromRGBO(225, 101, 46, 0.8156862745098039);
+  static const Color orangeColor = Color.fromRGBO(225, 101, 46, 0.8156862745098039);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class _HeaderState extends State<Header> {
       children: [
         Container(
           height: 90,
-          color: myColor,
+          color: orangeColor,
           width: double.infinity,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

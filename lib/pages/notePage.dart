@@ -1,7 +1,5 @@
-import 'dart:convert'; // Import nécessaire pour jsonDecode
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/request.dart'; // Assurez-vous que connect est correctement défini ici
 
 class NotePage extends StatefulWidget {
   const NotePage({super.key});
@@ -14,7 +12,6 @@ class _NotePageState extends State<NotePage> {
   final _formKey = GlobalKey<FormState>();
   final _noteController = TextEditingController();
   List<String> _notes = [];
-  String response = "";
 
   @override
   void initState() {
@@ -37,44 +34,56 @@ class _NotePageState extends State<NotePage> {
     await prefs.setStringList('notes', _notes);
   }
 
-  void _fetchAndShowNotes() async {
-    try {
-      final resBody = await connect(""); // Passer un argument approprié si nécessaire
-      print("Response body: $resBody");
+  // Fonction pour supprimer une note
+  void _deleteNoteAt(int index) {
+    setState(() {
+      _notes.removeAt(index);
+      _saveNotes(); // Sauvegarder la liste après suppression
+    });
+  }
 
-      final decodedResponse = jsonDecode(resBody); // Décodage de la réponse JSON
-      print("Decoded response: $decodedResponse");
-
-      setState(() {
-        response = decodedResponse["content"] ?? "No content"; // Utilisez une valeur par défaut si "content" n'existe pas
-      });
-
-
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Notes'),
-            content: SingleChildScrollView(
-              child: Text(response),
+  // Fonction pour modifier une note
+  void _editNoteAt(int index) {
+    _noteController.text = _notes[index]; // Remplir le contrôleur avec la note actuelle
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Modifier la note"),
+          content: TextFormField(
+            controller: _noteController,
+            decoration: const InputDecoration(
+              labelText: 'Modifier la note',
             ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    } catch (e) {
-      // Gérer les exceptions ou erreurs ici
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch notes: $e')),
-      );
-    }
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'La note ne peut pas être vide';
+              }
+              return null;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Fermer le dialogue sans enregistrer
+              },
+              child: const Text("Annuler"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _notes[index] = _noteController.text; // Mettre à jour la note
+                  _saveNotes(); // Sauvegarder les notes modifiées
+                });
+                _noteController.clear(); // Vider le contrôleur
+                Navigator.of(context).pop(); // Fermer le dialogue après l'édition
+              },
+              child: const Text("Enregistrer"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -113,20 +122,34 @@ class _NotePageState extends State<NotePage> {
                 },
                 child: const Text('Ajouter une note'),
               ),
-              ElevatedButton(
-                onPressed: _fetchAndShowNotes,
-                child: const Text("Afficher les notes"),
-              ),
               const SizedBox(height: 16),
-              Text(response),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
                   itemCount: _notes.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(_notes[index]),
-                      subtitle: Text('This is a sample note'),
+                    return Dismissible(
+                      key: Key(_notes[index]),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        _deleteNoteAt(index);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Note supprimée')),
+                        );
+                      },
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      child: ListTile(
+                        title: Text(_notes[index]),
+                        subtitle: const Text('Appuyez pour modifier'),
+                        onTap: () {
+                          _editNoteAt(index); // Ouvrir la boîte de dialogue pour modifier la note
+                        },
+                      ),
                     );
                   },
                 ),
