@@ -10,49 +10,19 @@ class Header extends StatefulWidget {
 }
 
 class _HeaderState extends State<Header> {
-  static const Color orangeColor = Color.fromRGBO(225, 101, 46, 0.8156862745098039);
+  static const Color orangeColor = Color.fromRGBO(225, 101, 46, 0.81);
+  static const Color greyColor = Color.fromRGBO(136, 178, 164, 100);
+  static const Color darkGreyColor = Color.fromRGBO(
+      246, 72, 0, 0.5843137254901961);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-          height: 90,
+          //height: 70,
           color: orangeColor,
           width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.home),
-                iconSize: 60,
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const MyHomePage(title: '',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.note_add),
-                iconSize: 60,
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotePage(
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
         )
       ],
     );
